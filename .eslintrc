@@ -1,0 +1,24 @@
+{
+  "root": true,
+  "parser": "babel-eslint",
+  "extends": ["airbnb"],
+  "env": {
+    "jest": true
+  },
+  "rules": {
+    "arrow-parens": "off",
+    "class-methods-use-this": "off",
+    "function-paren-newline": "off",
+    "no-param-reassign": "off",
+    "no-plusplus": "off",
+    "no-shadow": "off",
+    "no-use-before-define": "off",
+    "implicit-arrow-linebreak": "off",
+    "import/prefer-default-export": "off",
+    "react/no-unused-state": "off",
+    "react/destructuring-assignment": "off",
+    "react/prop-types": "off",
+    "react/sort-comp": "off",
+    "semi": "off"
+  }
+}
