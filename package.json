@@ -23,7 +23,7 @@
     "build": "babel -d lib --ignore \"**/*.test.js\" src",
     "lint": "eslint src/",
     "prepublishOnly": "yarn run build",
-    "test": "jest --runInBand"
+    "test": "mocha --require @babel/register src/*.test.js"
   },
   "dependencies": {
     "@babel/helper-module-imports": "^7.0.0"
@@ -33,14 +33,15 @@
     "@babel/core": "^7.2.2",
     "@babel/plugin-syntax-jsx": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
+    "@babel/register": "^7.0.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
-    "babel-jest": "^23.6.0",
+    "chai": "^4.2.0",
     "eslint": "^5.9.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "eslint-plugin-react": "^7.11.1",
-    "jest": "^23.6.0"
+    "mocha": "^5.2.0"
   }
 }
