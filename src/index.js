@@ -1,3 +1,5 @@
+import { addSideEffect } from '@babel/helper-module-imports';
+
 const elementToComponent = {
   svg: 'Svg',
   circle: 'Circle',
@@ -22,6 +24,8 @@ const elementToComponent = {
   mask: 'Mask',
   image: 'Image',
 }
+
+const isReactNativeSvg = path => path.get('source').isStringLiteral({ value: 'react-native-svg' })
 
 const plugin = ({ types: t }) => {
   function replaceElement(path, state) {
@@ -65,7 +69,7 @@ const plugin = ({ types: t }) => {
 
   const importDeclarationVisitor = {
     ImportDeclaration(path, state) {
-      if (!path.get('source').isStringLiteral({ value: 'react-native-svg' })) {
+      if (!isReactNativeSvg(path)) {
         return
       }
 
@@ -103,6 +107,13 @@ const plugin = ({ types: t }) => {
         state.unsupportedComponents = new Set()
 
         path.traverse(svgElementVisitor, state)
+
+        if (state.replacedComponents.size > 0
+          && !path.get('body').some((body) => isReactNativeSvg(body))
+        ) {
+          addSideEffect(path, 'react-native-svg')
+        }
+
         path.traverse(importDeclarationVisitor, state)
       },
     },
