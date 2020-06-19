@@ -1,4 +1,4 @@
-import { addSideEffect } from '@babel/helper-module-imports';
+import { addSideEffect } from '@babel/helper-module-imports'
 
 const elementToComponent = {
   svg: 'Svg',
@@ -25,11 +25,13 @@ const elementToComponent = {
   image: 'Image',
 }
 
-const isReactNativeSvg = path => path.get('source').isStringLiteral({ value: 'react-native-svg' })
+const isReactNativeSvg = (path) =>
+  path.get('source').isStringLiteral({ value: 'react-native-svg' })
 
 const plugin = ({ types: t }) => {
   function replaceElement(path, state) {
     const { name } = path.node.openingElement.name
+    console.log(`Replacing ${name}`)
 
     // Replace element by react-native-svg components
     const component = elementToComponent[name]
@@ -52,12 +54,22 @@ const plugin = ({ types: t }) => {
 
   const svgElementVisitor = {
     JSXElement(path, state) {
-      if (!path.get('openingElement.name').isJSXIdentifier({ name: 'svg' })) {
+      // There are two valid opening elements:
+
+      // 1. `svg`
+      if (path.get('openingElement.name').isJSXIdentifier({ name: 'svg' })) {
+        replaceElement(path, state)
+        path.traverse(jsxElementVisitor, state)
         return
       }
 
-      replaceElement(path, state)
-      path.traverse(jsxElementVisitor, state)
+      // 2. `IconRoot`
+      if (
+        path.get('openingElement.name').isJSXIdentifier({ name: 'IconRoot' })
+      ) {
+        path.traverse(jsxElementVisitor, state)
+        return
+      }
     },
   }
 
@@ -73,12 +85,12 @@ const plugin = ({ types: t }) => {
         return
       }
 
-      state.replacedComponents.forEach(component => {
+      state.replacedComponents.forEach((component) => {
         if (
           path
             .get('specifiers')
-            .some(specifier =>
-              specifier.get('local').isIdentifier({ name: component }),
+            .some((specifier) =>
+              specifier.get('local').isIdentifier({ name: component })
             )
         ) {
           return
@@ -86,7 +98,7 @@ const plugin = ({ types: t }) => {
 
         path.pushContainer(
           'specifiers',
-          t.importSpecifier(t.identifier(component), t.identifier(component)),
+          t.importSpecifier(t.identifier(component), t.identifier(component))
         )
       })
 
@@ -94,7 +106,7 @@ const plugin = ({ types: t }) => {
         const componentList = [...state.unsupportedComponents].join(', ')
         path.addComment(
           'trailing',
-          ` SVGR has dropped some elements not supported by react-native-svg: ${componentList} `,
+          ` SVGR has dropped some elements not supported by react-native-svg: ${componentList} `
         )
       }
     },
@@ -108,8 +120,9 @@ const plugin = ({ types: t }) => {
 
         path.traverse(svgElementVisitor, state)
 
-        if (state.replacedComponents.size > 0
-          && !path.get('body').some((body) => isReactNativeSvg(body))
+        if (
+          state.replacedComponents.size > 0 &&
+          !path.get('body').some((body) => isReactNativeSvg(body))
         ) {
           addSideEffect(path, 'react-native-svg')
         }
